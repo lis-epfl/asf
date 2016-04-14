@@ -87,7 +87,7 @@ void stdio_usb_getchar (void volatile * usart, int * data);
  *
  * \return Nothing.
  */
-void stdio_usb_getchar_read_buf (void volatile * unused, char *data);
+void stdio_usb_getchar_read_buf (void volatile * unused, int *data);
 
 /*! \brief Callback for VBUS level change event.
  *

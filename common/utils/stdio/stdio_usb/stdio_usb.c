@@ -69,7 +69,7 @@ void stdio_usb_getchar (void volatile * usart, int * data)
 	*data = udi_cdc_getc ();
 }
 
-void stdio_usb_getchar_read_buf (void volatile * unused, char *data)
+void stdio_usb_getchar_read_buf (void volatile * unused, int *data)
 {
 	/* A negative return value should be used to indicate that data
 	 * was not read, but this doesn't seem to work with GCC libc.
