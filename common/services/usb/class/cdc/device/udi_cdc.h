@@ -274,6 +274,17 @@ int udi_cdc_getc(void);
 iram_size_t udi_cdc_read_buf(int* buf, iram_size_t size);
 
 /**
+ * \brief Reads a RAM buffer on CDC line.
+  * Modified to change the tx to rx.
+ *
+ * \param buf       Values read
+ * \param size      Number of value read
+ *
+ * \return the number of data remaining
+ */
+iram_size_t udi_cdc_read_buf_rx(int* buf, iram_size_t size);
+
+/**
  * \brief This function checks if a new character sent is possible
  * The type int is used to support scanf redirection from compiler LIB.
  *
