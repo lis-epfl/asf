@@ -69,6 +69,20 @@ void stdio_usb_getchar (void volatile * usart, int * data)
 	*data = udi_cdc_getc ();
 }
 
+void stdio_usb_getchar_read_buf (void volatile * unused, char *data)
+{
+	/* A negative return value should be used to indicate that data
+	 * was not read, but this doesn't seem to work with GCC libc.
+	 */
+	if (!stdio_usb_interface_enable) {
+		*data = 0;  // -1
+		return;
+	}
+
+	// This was modified as udi_cdc_read_buf_rx was modified to not crash 
+	udi_cdc_read_buf_rx(data, 1);
+}
+
 void stdio_usb_vbus_event(bool b_high)
 {
 	if (b_high) {
