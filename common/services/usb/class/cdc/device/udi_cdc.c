@@ -638,6 +638,38 @@ udi_cdc_read_buf_loop_wait:
 	return 0;
 }
 
+iram_size_t udi_cdc_read_buf_rx(int* buf, iram_size_t size)
+{
+	uint8_t *ptr_buf = (uint8_t *)buf;
+	iram_size_t copy_nb;
+
+udi_cdc_read_buf_loop_wait_temp:
+	// Check avaliable data
+	while (udi_cdc_rx_pos >= udi_cdc_rx_buf_nb[udi_cdc_rx_buf_sel]) {
+		if (!udi_cdc_running) {
+			return size;
+		}
+		goto udi_cdc_read_buf_loop_wait_temp;
+	}
+
+	// Read data
+	copy_nb = udi_cdc_rx_buf_nb[udi_cdc_rx_buf_sel] - udi_cdc_rx_pos;
+	if (copy_nb>size) {
+		copy_nb = size;
+	}
+	// This line was modified, tx should be rx
+	//memcpy(ptr_buf, &udi_cdc_tx_buf[udi_cdc_rx_buf_sel][udi_cdc_rx_pos], copy_nb);
+	memcpy(ptr_buf, &udi_cdc_rx_buf[udi_cdc_rx_buf_sel][udi_cdc_rx_pos], copy_nb);
+	udi_cdc_rx_pos += copy_nb;
+	ptr_buf += copy_nb;
+	size -= copy_nb;
+	udi_cdc_rx_start();
+
+	if (size) {
+		goto udi_cdc_read_buf_loop_wait_temp;
+	}
+	return 0;
+}
 
 bool udi_cdc_is_tx_ready(void)
 {

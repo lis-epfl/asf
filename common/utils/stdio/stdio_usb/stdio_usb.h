@@ -80,6 +80,15 @@ int stdio_usb_putchar (volatile void * usart, int data);
  */
 void stdio_usb_getchar (void volatile * usart, int * data);
 
+/*! \brief Waits until a character is received, and returns it.
+ *
+ * \param usart   Base address of the USART instance.
+ * \param data    Data to read
+ *
+ * \return Nothing.
+ */
+void stdio_usb_getchar_read_buf (void volatile * unused, int *data);
+
 /*! \brief Callback for VBUS level change event.
  *
  * \param b_high  1 if VBus is present
