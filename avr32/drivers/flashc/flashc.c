@@ -84,7 +84,7 @@ unsigned int flashc_get_flash_size(void)
       8 << 10,
       16 << 10,
       32 << 10,
-      48 << 10,      
+      48 << 10,
       64 << 10,
       96  << 10,
      128 << 10,
@@ -94,7 +94,7 @@ unsigned int flashc_get_flash_size(void)
      512 << 10,
      768 << 10,
     1024 << 10,
-    2048 << 10      
+    2048 << 10
   };
   return FLASH_SIZE[(AVR32_FLASHC.pr & AVR32_FLASHC_PR_FSZ_MASK) >> AVR32_FLASHC_PR_FSZ_OFFSET];
 #else // in older flashc version, FSZ is located in FSR register
@@ -110,7 +110,7 @@ unsigned int flashc_get_flash_size(void)
     1024 << 10
   };
   return FLASH_SIZE[(AVR32_FLASHC.fsr & AVR32_FLASHC_FSR_FSZ_MASK) >> AVR32_FLASHC_FSR_FSZ_OFFSET];
-#endif  
+#endif
 }
 
 
@@ -364,7 +364,7 @@ unsigned int flashc_set_bootloader_protected_size(unsigned int bootprot_size)
                               AVR32_FLASHC_FGPFRLO_BOOTPROT_SIZE,
                               (1 << AVR32_FLASHC_FGPFRLO_BOOTPROT_SIZE) - 1 -
                               ((bootprot_size) ?
-                               32 - clz((((min(max(bootprot_size, AVR32_FLASHC_PAGE_SIZE << 1),
+                               32 - clz((((min_asm(max_asm(bootprot_size, AVR32_FLASHC_PAGE_SIZE << 1),
                                                AVR32_FLASHC_PAGE_SIZE <<
                                                ((1 << AVR32_FLASHC_FGPFRLO_BOOTPROT_SIZE) - 1)) +
                                            AVR32_FLASHC_PAGE_SIZE - 1) /
@@ -439,7 +439,7 @@ bool flashc_read_gp_fuse_bit(unsigned int gp_fuse_bit)
 
 U64 flashc_read_gp_fuse_bitfield(unsigned int pos, unsigned int width)
 {
-  return flashc_read_all_gp_fuses() >> (pos & 0x3F) & ((1ULL << min(width, 64)) - 1);
+  return flashc_read_all_gp_fuses() >> (pos & 0x3F) & ((1ULL << min_asm(width, 64)) - 1);
 }
 
 
@@ -467,7 +467,7 @@ bool flashc_erase_gp_fuse_bitfield(unsigned int pos, unsigned int width, bool ch
   unsigned int error_status = 0;
   unsigned int gp_fuse_bit;
   pos &= 0x3F;
-  width = min(width, 64);
+  width = min_asm(width, 64);
   for (gp_fuse_bit = pos; gp_fuse_bit < pos + width; gp_fuse_bit++)
   {
     flashc_erase_gp_fuse_bit(gp_fuse_bit, false);
@@ -517,7 +517,7 @@ void flashc_write_gp_fuse_bitfield(unsigned int pos, unsigned int width, U64 val
   unsigned int error_status = 0;
   unsigned int gp_fuse_bit;
   pos &= 0x3F;
-  width = min(width, 64);
+  width = min_asm(width, 64);
   for (gp_fuse_bit = pos; gp_fuse_bit < pos + width; gp_fuse_bit++, value >>= 1)
   {
     flashc_write_gp_fuse_bit(gp_fuse_bit, value & 0x01);
@@ -560,7 +560,7 @@ void flashc_set_gp_fuse_bitfield(unsigned int pos, unsigned int width, U64 value
   unsigned int error_status = 0;
   unsigned int gp_fuse_bit;
   pos &= 0x3F;
-  width = min(width, 64);
+  width = min_asm(width, 64);
   for (gp_fuse_bit = pos; gp_fuse_bit < pos + width; gp_fuse_bit++, value >>= 1)
   {
     flashc_set_gp_fuse_bit(gp_fuse_bit, value & 0x01);
@@ -769,7 +769,7 @@ volatile void *flashc_memset64(volatile void *dst, U64 src, size_t nbytes, bool 
 
     // Determine where the source data will end in the current flash page.
     flash_page_source_end.u64ptr =
-      (U64 *)min((U32)dest_end.u64ptr,
+      (U64 *)min_asm((U32)dest_end.u64ptr,
                  Align_down((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE) + AVR32_FLASHC_PAGE_SIZE);
 
     // Determine if the current destination page has an incomplete end.
@@ -940,7 +940,7 @@ volatile void *flashc_memcpy(volatile void *dst, const void *src, size_t nbytes,
 
     // Determine where the source data will end in the current flash page.
     flash_page_source_end.u64ptr =
-      (U64 *)min((U32)dest_end.u64ptr,
+      (U64 *)min_asm((U32)dest_end.u64ptr,
                  Align_down((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE) + AVR32_FLASHC_PAGE_SIZE);
 
     // Determine if the current destination page has an incomplete end.
@@ -1104,7 +1104,7 @@ void flashc_set_flash_waitstate_and_readmode(unsigned long cpu_f_hz)
   #define AVR32_FLASHC_HSEN_FWS_0_MAX_FREQ      33000000
   #define AVR32_FLASHC_HSEN_FWS_1_MAX_FREQ      72000000
   // These defines are missing from or wrong in the toolchain header files uc3cxxx.h
-  // Put a Bugzilla 
+  // Put a Bugzilla
 
   if(cpu_f_hz > AVR32_FLASHC_HSEN_FWS_0_MAX_FREQ)    // > 33MHz
   {
@@ -1112,23 +1112,23 @@ void flashc_set_flash_waitstate_and_readmode(unsigned long cpu_f_hz)
     flashc_set_wait_state(1);
     if(cpu_f_hz <= AVR32_FLASHC_FWS_1_MAX_FREQ) // <= 66MHz and >33Mhz
     {
-      // Disable the high-speed read mode.      
+      // Disable the high-speed read mode.
       flashc_issue_command(AVR32_FLASHC_FCMD_CMD_HSDIS, -1);
     }
     else // > 66Mhz
     {
       // Enable the high-speed read mode.
-      flashc_issue_command(AVR32_FLASHC_FCMD_CMD_HSEN, -1);                     
+      flashc_issue_command(AVR32_FLASHC_FCMD_CMD_HSEN, -1);
     }
   }
-  else  // <= 33 MHz    
+  else  // <= 33 MHz
   {
     // Disable wait-state
     flashc_set_wait_state(0);
 
     // Disable the high-speed read mode.
     flashc_issue_command(AVR32_FLASHC_FCMD_CMD_HSDIS, -1);
-    
+
   }
 }
 #endif // UC3C device-specific implementation

@@ -250,7 +250,7 @@
   //! Bounds given integer size to allowed range and rounds it up to the nearest
   //! available greater size, then applies register format of USBC controller
   //! for endpoint size bit-field.
-#define  udd_format_endpoint_size(size)            (32 - clz(((uint32_t)min(max(size, 8), 1024) << 1) - 1) - 1 - 3)
+#define  udd_format_endpoint_size(size)            (32 - clz(((uint32_t)min_asm(max_asm(size, 8), 1024) << 1) - 1) - 1 - 3)
   //! configures the selected endpoint size
 #define  udd_configure_endpoint_size(ep, size)     (Wr_bitfield(USBC_ARRAY(uecfg0,ep), AVR32_USBC_UECFG0_EPSIZE_MASK, udd_format_endpoint_size(size)))
   //! gets the configured selected endpoint size

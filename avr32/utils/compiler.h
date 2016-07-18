@@ -147,14 +147,14 @@
 
 /**
  * \name Tag functions as deprecated
- * 
+ *
  * Tagging a function as deprecated will produce a warning when and only
  * when the function is called.
  *
  * Usage is to add the __DEPRECATED__ symbol before the function definition.
- * E.g.: 
+ * E.g.:
  * __DEPRECATED__ uint8_t some_deprecated_function (void)
- * { 
+ * {
  *     ...
  * }
  *
@@ -826,7 +826,7 @@ static inline int_fast8_t ilog2(uint32_t x)
  * \note More optimized if only used with values unknown at compile time.
  */
 #if (defined __GNUC__)
-  #define min(a, b) \
+  #define min_asm(a, b) \
   (\
     {\
       int __value, __arg_a = (a), __arg_b = (b);\
@@ -848,7 +848,7 @@ static inline int_fast8_t ilog2(uint32_t x)
  * \note More optimized if only used with values unknown at compile time.
  */
 #if (defined __GNUC__)
-  #define max(a, b) \
+  #define max_asm(a, b) \
   (\
     {\
       int __value, __arg_a = (a), __arg_b = (b);\
@@ -1035,7 +1035,7 @@ static inline int_fast8_t ilog2(uint32_t x)
 #if (defined __GNUC__)
 #define __always_inline     __attribute__((__always_inline__))
 #elif (defined __ICCAVR32__)
-#define __always_inline     _Pragma("inline=forced") 
+#define __always_inline     _Pragma("inline=forced")
 #endif
 //! @}
 
@@ -1045,7 +1045,7 @@ static inline int_fast8_t ilog2(uint32_t x)
 //! @{
 #define  MSB(u16)       (((U8  *)&(u16))[0]) //!< Most significant byte of \a u16.
 #define  LSB(u16)       (((U8  *)&(u16))[1]) //!< Least significant byte of \a u16.
-        
+
 #define  MSH(u32)       (((U16 *)&(u32))[0]) //!< Most significant half-word of \a u32.
 #define  LSH(u32)       (((U16 *)&(u32))[1]) //!< Least significant half-word of \a u32.
 #define  MSB0W(u32)     (((U8  *)&(u32))[0]) //!< Most significant byte of 1st rank of \a u32.
@@ -1056,7 +1056,7 @@ static inline int_fast8_t ilog2(uint32_t x)
 #define  LSB2W(u32)     MSB1W(u32)           //!< Least significant byte of 3rd rank of \a u32.
 #define  LSB1W(u32)     MSB2W(u32)           //!< Least significant byte of 2nd rank of \a u32.
 #define  LSB0W(u32)     MSB3W(u32)           //!< Least significant byte of 1st rank of \a u32.
-        
+
 #define  MSW(u64)       (((U32 *)&(u64))[0]) //!< Most significant word of \a u64.
 #define  LSW(u64)       (((U32 *)&(u64))[1]) //!< Least significant word of \a u64.
 #define  MSH0(u64)      (((U16 *)&(u64))[0]) //!< Most significant half-word of 1st rank of \a u64.
@@ -1084,22 +1084,22 @@ static inline int_fast8_t ilog2(uint32_t x)
 #define  LSB1D(u64)     MSB6D(u64)           //!< Least significant byte of 2nd rank of \a u64.
 #define  LSB0D(u64)     MSB7D(u64)           //!< Least significant byte of 1st rank of \a u64.
 
-#define  LE16(x)        Swap16(x)        
+#define  LE16(x)        Swap16(x)
 #define  le16_to_cpu(x) swap16(x)
 #define  cpu_to_le16(x) swap16(x)
 #define  LE16_TO_CPU(x) Swap16(x)
 #define  CPU_TO_LE16(x) Swap16(x)
-        
+
 #define  be16_to_cpu(x) (x)
 #define  cpu_to_be16(x) (x)
 #define  BE16_TO_CPU(x) (x)
 #define  CPU_TO_BE16(x) (x)
-        
+
 #define  le32_to_cpu(x) swap32(x)
 #define  cpu_to_le32(x) swap32(x)
 #define  LE32_TO_CPU(x) Swap32(x)
 #define  CPU_TO_LE32(x) Swap32(x)
-        
+
 #define  be32_to_cpu(x) (x)
 #define  cpu_to_be32(x) (x)
 #define  BE32_TO_CPU(x) (x)
@@ -1161,7 +1161,7 @@ static inline int_fast8_t ilog2(uint32_t x)
  * \note More optimized if only used with values unknown at compile time.
  */
 #if (defined __GNUC__)
-#  if (!defined __OPTIMIZE_SIZE__) || !__OPTIMIZE_SIZE__ 
+#  if (!defined __OPTIMIZE_SIZE__) || !__OPTIMIZE_SIZE__
   #define swap16(u16) ((U16)__builtin_bswap_16((U16)(u16)))
 #  else
   // swap_16 must be not used when GCC's -Os command option is used
